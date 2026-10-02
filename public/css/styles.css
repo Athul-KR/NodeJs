@@ -1,0 +1,236 @@
+/* ShopStack frontend — shared styles (home + login).
+   NOTE: layout is a placeholder pending the reference screenshot. */
+
+:root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --text: #1c2430;
+    --muted: #6b7686;
+    --border: #e3e7ee;
+    --primary: #2f6fed;
+    --primary-dark: #1e56c8;
+    --danger: #d64545;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 4px 14px rgba(16, 24, 40, 0.05);
+}
+
+* { box-sizing: border-box; }
+
+/* Author display rules (e.g. .user-actions { display:flex }) would defeat
+   the native hidden attribute — this keeps hidden meaning hidden. */
+[hidden] { display: none !important; }
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------- header ---------- */
+.site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand {
+    font-size: 1.35rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+.brand span { color: var(--primary); }
+
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+.user-actions { display: flex; align-items: center; gap: 1rem; }
+.user-name { font-weight: 600; }
+
+.cart-chip {
+    position: relative;
+    display: inline-flex;
+    color: var(--muted);
+    padding: 0.25rem;
+}
+.badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+    font: inherit;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    border: 1px solid transparent;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline { background: transparent; color: var(--primary); border-color: var(--primary); }
+.btn-outline:hover { background: rgba(47, 111, 237, 0.08); }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+
+/* ---------- layout ---------- */
+.container {
+    width: min(1080px, 100% - 3rem);
+    margin: 0 auto;
+    flex: 1;
+    padding: 2rem 0 3rem;
+}
+
+.page-state { color: var(--muted); text-align: center; padding: 3rem 0; }
+.page-state.error { color: var(--danger); }
+
+.hero { margin-bottom: 1.75rem; }
+.hero h1 { margin: 0 0 0.35rem; font-size: 1.9rem; letter-spacing: -0.02em; }
+.hero-sub { margin: 0; color: var(--muted); }
+
+/* ---------- stat tiles ---------- */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.25rem;
+}
+.stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.15rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.stat-value { font-size: 1.8rem; font-weight: 700; }
+.stat-label { color: var(--muted); font-size: 0.86rem; }
+
+/* ---------- products ---------- */
+.section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.section-head h2 { margin: 0; font-size: 1.3rem; }
+.section-hint { color: var(--muted); font-size: 0.85rem; }
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.1rem;
+}
+
+.product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 24, 40, 0.1);
+}
+
+.product-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: #eef1f6;
+    display: block;
+}
+
+.product-info { padding: 0.85rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.category-chip {
+    align-self: flex-start;
+    background: rgba(47, 111, 237, 0.1);
+    color: var(--primary-dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+}
+.product-name { margin: 0; font-size: 0.98rem; line-height: 1.3; }
+.product-price { margin: 0; font-weight: 700; color: var(--primary-dark); }
+
+.empty-note { color: var(--muted); text-align: center; padding: 2rem 0; }
+
+/* ---------- auth card (login page) ---------- */
+.auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-width: 400px;
+    margin: 3rem auto;
+    padding: 2rem;
+}
+.auth-card h1 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+.auth-sub { margin: 0 0 1.5rem; color: var(--muted); font-size: 0.9rem; }
+
+.auth-card label { display: block; font-weight: 600; font-size: 0.86rem; margin: 1rem 0 0.3rem; }
+.auth-card input {
+    width: 100%;
+    font: inherit;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+}
+.auth-card input:focus {
+    outline: 2px solid rgba(47, 111, 237, 0.35);
+    border-color: var(--primary);
+    background: #fff;
+}
+.auth-card .btn-block { margin-top: 1.4rem; }
+.form-error { color: var(--danger); font-size: 0.86rem; margin: 0.9rem 0 0; }
+.auth-alt { text-align: center; margin: 1.25rem 0 0; font-size: 0.88rem; }
+.auth-alt a { color: var(--primary); text-decoration: none; }
+
+/* ---------- footer ---------- */
+.site-footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 560px) {
+    .site-header { padding: 0.8rem 1rem; }
+    .container { width: calc(100% - 2rem); }
+    .user-name { display: none; }
+}

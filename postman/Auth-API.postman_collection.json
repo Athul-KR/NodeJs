@@ -1,0 +1,505 @@
+{
+	"info": {
+		"name": "Auth & Catalog API",
+		"description": "All modules: auth, profile, user management, categories, products. Flow: run 'Login as Admin' first — it stores accessToken/refreshToken. 'Create User/Category/Product' auto-save {{userUuid}}/{{categoryId}}/{{productKey}} for the edit/delete requests. Seeded admin: admin@example.com / Admin@12345 (npm run seed).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:3000" },
+		{ "key": "accessToken", "value": "" },
+		{ "key": "refreshToken", "value": "" },
+		{ "key": "userUuid", "value": "" },
+		{ "key": "categoryId", "value": "" },
+		{ "key": "productKey", "value": "" }
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Health",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+					}
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"if (json.data && json.data.accessToken) {",
+									"    pm.collectionVariables.set('accessToken', json.data.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"first_name\": \"Athul\",\n    \"last_name\": \"Krishnan\",\n    \"email\": \"athul@example.com\",\n    \"password\": \"secret123\",\n    \"confirm_password\": \"secret123\",\n    \"phone_number\": \"+91 98765 43210\",\n    \"user_type\": 2\n}"
+						},
+						"description": "201 + user + token pair. user_type: 2 = user, 3 = customer (1 = admin is rejected — admins are seeded, never self-service). Change the email to register again."
+					}
+				},
+				{
+					"name": "Register — validation errors (422 demo)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"first_name\": \"\",\n    \"email\": \"not-an-email\",\n    \"password\": \"short\",\n    \"confirm_password\": \"different\",\n    \"phone_number\": \"-------\",\n    \"user_type\": 1\n}"
+						},
+						"description": "Every field invalid — shows the per-field errors array."
+					}
+				},
+				{
+					"name": "Login as Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"if (json.data && json.data.accessToken) {",
+									"    pm.collectionVariables.set('accessToken', json.data.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"Admin@12345\"\n}"
+						},
+						"description": "The seeded admin (npm run seed). Run this before any admin folder request."
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"if (json.data && json.data.accessToken) {",
+									"    pm.collectionVariables.set('accessToken', json.data.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"email\": \"athul@example.com\",\n    \"password\": \"secret123\"\n}"
+						},
+						"description": "A deactivated account gets 403 ACCOUNT_DEACTIVATED here."
+					}
+				},
+				{
+					"name": "Refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"if (json.data && json.data.accessToken) {",
+									"    pm.collectionVariables.set('accessToken', json.data.accessToken);",
+									"    pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api", "auth", "refresh"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"description": "Rotation: old token revoked, new pair saved. Send twice to see reuse detection (401 REFRESH_TOKEN_REUSED — all sessions revoked)."
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Profile (any logged-in user)",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] },
+						"description": "On 401 TOKEN_EXPIRED, run Refresh and retry."
+					}
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/users/me", "host": ["{{baseUrl}}"], "path": ["api", "users", "me"] },
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "first_name", "value": "Athul", "type": "text" },
+								{ "key": "last_name", "value": "K", "type": "text", "disabled": true },
+								{ "key": "phone_number", "value": "+91 90000 11111", "type": "text", "disabled": true },
+								{ "key": "profile_image", "type": "file", "src": [], "description": "optional — JPEG/PNG/WebP, max 2MB" }
+							]
+						},
+						"description": "Self edit — only enabled fields change. email is immutable here; user_type/status are ignored if sent. Plain JSON also works when no image is attached."
+					}
+				}
+			]
+		},
+		{
+			"name": "User Management (admin)",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "10" },
+								{ "key": "search", "value": "athul", "description": "name, email, or phone", "disabled": true },
+								{ "key": "status", "value": "1", "description": "0 inactive, 1 active", "disabled": true },
+								{ "key": "user_type", "value": "3", "description": "1 admin, 2 user, 3 customer", "disabled": true }
+							]
+						},
+						"description": "Newest first. Enable the disabled params to search/filter."
+					}
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"if (json.data && json.data.user) {",
+									"    pm.collectionVariables.set('userUuid', json.data.user.user_uuid);",
+									"    console.log('temp_password:', json.data.temp_password);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] },
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "first_name", "value": "Managed", "type": "text" },
+								{ "key": "last_name", "value": "Person", "type": "text" },
+								{ "key": "email", "value": "managed@example.com", "type": "text" },
+								{ "key": "phone_number", "value": "+91 91234 56789", "type": "text" },
+								{ "key": "user_type", "value": "3", "type": "text" },
+								{ "key": "profile_image", "type": "file", "src": [], "description": "optional" }
+							]
+						},
+						"description": "201 + user + one-time temp_password (see Postman console). Saves {{userUuid}}."
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/users/{{userUuid}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userUuid}}"] },
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "first_name", "value": "Renamed", "type": "text" },
+								{ "key": "email", "value": "renamed@example.com", "type": "text", "disabled": true },
+								{ "key": "phone_number", "value": "+91 90000 00000", "type": "text", "disabled": true },
+								{ "key": "user_type", "value": "2", "type": "text", "disabled": true },
+								{ "key": "profile_image", "type": "file", "src": [] }
+							]
+						},
+						"description": "Admin edit — can change email and user_type, unlike the self-service /me."
+					}
+				},
+				{
+					"name": "Deactivate User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/users/{{userUuid}}/status", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userUuid}}", "status"] },
+						"body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n    \"status\": 0\n}" },
+						"description": "Also revokes their refresh tokens. Self-deactivation → 400."
+					}
+				},
+				{
+					"name": "Activate User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/users/{{userUuid}}/status", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userUuid}}", "status"] },
+						"body": { "mode": "raw", "options": { "raw": { "language": "json" } }, "raw": "{\n    \"status\": 1\n}" }
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories (admin)",
+			"item": [
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "10" },
+								{ "key": "search", "value": "electronics", "description": "matches category name", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"if (json.data && json.data.category) {",
+									"    pm.collectionVariables.set('categoryId', json.data.category.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"category_name\": \"Electronics\",\n    \"description\": \"Gadgets and devices\"\n}"
+						},
+						"description": "Name must be unique (409 otherwise). Saves {{categoryId}} — products reference it."
+					}
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api", "categories", "{{categoryId}}"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"description\": \"Updated description\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api", "categories", "{{categoryId}}"] },
+						"description": "409 while any product (soft-deleted included) still references it."
+					}
+				}
+			]
+		},
+		{
+			"name": "Products (admin)",
+			"item": [
+				{
+					"name": "List Products",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": {
+							"raw": "{{baseUrl}}/api/products?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "products"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "10" },
+								{ "key": "search", "value": "laptop", "description": "matches product name", "disabled": true },
+								{ "key": "status", "value": "1", "description": "0 inactive, 1 active", "disabled": true },
+								{ "key": "category_id", "value": "{{categoryId}}", "disabled": true }
+							]
+						},
+						"description": "Each row embeds its category object and image path. Soft-deleted rows never appear."
+					}
+				},
+				{
+					"name": "Create Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const json = pm.response.json();",
+									"if (json.data && json.data.product) {",
+									"    pm.collectionVariables.set('productKey', json.data.product.key);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/products", "host": ["{{baseUrl}}"], "path": ["api", "products"] },
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "product_name", "value": "Laptop Pro", "type": "text" },
+								{ "key": "description", "value": "A fast machine", "type": "text" },
+								{ "key": "category_id", "value": "{{categoryId}}", "type": "text" },
+								{ "key": "price", "value": "49999.99", "type": "text", "description": "max 2 decimals" },
+								{ "key": "status", "value": "1", "type": "text", "description": "optional, default 1" },
+								{ "key": "image", "type": "file", "src": [], "description": "optional — JPEG/PNG/WebP, max 2MB" }
+							]
+						},
+						"description": "Run Create Category first ({{categoryId}} must exist — else 400). Saves {{productKey}}."
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/products/{{productKey}}", "host": ["{{baseUrl}}"], "path": ["api", "products", "{{productKey}}"] },
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "price", "value": "44999.00", "type": "text" },
+								{ "key": "product_name", "value": "Laptop Pro Max", "type": "text", "disabled": true },
+								{ "key": "category_id", "value": "{{categoryId}}", "type": "text", "disabled": true },
+								{ "key": "status", "value": "0", "type": "text", "disabled": true },
+								{ "key": "image", "type": "file", "src": [], "description": "optional — replaces the old image" }
+							]
+						},
+						"description": "Only enabled fields change. Soft-deleted products return 404 here."
+					}
+				},
+				{
+					"name": "Delete Product (soft)",
+					"request": {
+						"method": "DELETE",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/products/{{productKey}}", "host": ["{{baseUrl}}"], "path": ["api", "products", "{{productKey}}"] },
+						"description": "Sets deleted_at — the row stays in the table but vanishes from listing/edit."
+					}
+				}
+			]
+		},
+		{
+			"name": "Cart (any logged-in user)",
+			"description": "Always the CALLER's own cart — the user comes from the JWT. Works with any account's token, not just admin. Run Create Product first so {{productKey}} is set.",
+			"item": [
+				{
+					"name": "Add to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": { "raw": "{{baseUrl}}/api/cart", "host": ["{{baseUrl}}"], "path": ["api", "cart"] },
+						"body": {
+							"mode": "raw",
+							"options": { "raw": { "language": "json" } },
+							"raw": "{\n    \"product_key\": \"{{productKey}}\"\n}"
+						},
+						"description": "201 + cart_item with order_by and the embedded product. 404 unknown product, 400 inactive product, 409 already in the cart."
+					}
+				},
+				{
+					"name": "List Cart",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+						"url": { "raw": "{{baseUrl}}/api/cart", "host": ["{{baseUrl}}"], "path": ["api", "cart"] },
+						"description": "Items in order_by order, each embedding its product (with category). Products soft-deleted since being added are hidden."
+					}
+				}
+			]
+		}
+	]
+}

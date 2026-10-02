@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopStack — Login</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%92%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">Shop<span>Stack</span></a>
+    </header>
+
+    <main class="container">
+        <section class="auth-card">
+            <h1>Login</h1>
+            <p class="auth-sub">Sign in to see your cart and orders on the home page.</p>
+
+            <form id="login-form" novalidate>
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required />
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+                <p class="form-error" id="form-error" hidden></p>
+
+                <button class="btn btn-primary btn-block" id="submit-btn" type="submit">Sign in</button>
+            </form>
+
+            <p class="auth-alt"><a href="/">← Back to home</a></p>
+        </section>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/login.js"></script>
+</body>
+</html>
